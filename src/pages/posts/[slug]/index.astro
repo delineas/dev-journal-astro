@@ -8,14 +8,30 @@ import getPagination from "@utils/getPagination";
 
 export interface Props {
   post: CollectionEntry<"blog">;
+  prevPost: CollectionEntry<"blog">;
+  nextPost: CollectionEntry<"blog">;
 }
 
 export async function getStaticPaths() {
   const posts = await getCollection("blog", ({ data }) => !data.draft);
 
-  const postResult = posts.map(post => ({
+  const numberOfPosts = posts.length; // Total of all posts
+
+  const postResult = posts.map((post, i) => ({
     params: { slug: post.slug },
-    props: { post },
+    props: {
+      post,
+      // Previous post
+      prevPost:
+        i + 1 === numberOfPosts // If the current post is the oldest
+          ? { frontmatter: "" }
+          : posts[i + 1],
+      // Next post
+      nextPost:
+        i === 0 // If the current post is the newest
+          ? { frontmatter: "" }
+          : posts[i - 1],
+    },
   }));
 
   const pagePaths = getPageNumbers(posts.length).map(pageNum => ({
@@ -26,8 +42,7 @@ export async function getStaticPaths() {
 }
 
 const { slug } = Astro.params;
-const { post } = Astro.props;
-
+const { post, prevPost, nextPost } = Astro.props;
 const posts = await getCollection("blog");
 
 const sortedPosts = getSortedPosts(posts);
@@ -38,4 +53,10 @@ const pagination = getPagination({
 });
 ---
 
-{post ? <PostDetails post={post} /> : <Posts {...pagination} />}
+{
+  post ? (
+    <PostDetails post={post} prevPost={prevPost} nextPost={nextPost} />
+  ) : (
+    <Posts {...pagination} />
+  )
+}

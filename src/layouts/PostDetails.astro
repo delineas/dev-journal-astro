@@ -11,9 +11,11 @@ import { SITE } from "@config";
 
 export interface Props {
   post: CollectionEntry<"blog">;
+  prevPost?: CollectionEntry<"blog">;
+  nextPost?: CollectionEntry<"blog">;
 }
 
-const { post } = Astro.props;
+const { post, prevPost, nextPost } = Astro.props;
 
 const {
   title,
@@ -76,6 +78,25 @@ const layoutProps = {
     <article id="article" role="article" class="prose mx-auto mt-8 max-w-3xl">
       <Content />
     </article>
+
+    <hr class="my-8" />
+    <div class="flex flex-col items-start mt-8">
+      {
+        prevPost && (
+          <a href={`/${prevPost.slug}/`} class="flex self-start">
+            ↩ {prevPost.data.title}
+          </a>
+        )
+      }
+
+      {
+        nextPost && (
+          <a href={`/${nextPost.slug}/`} class="flex self-end">
+            {nextPost.data.title} ↪
+          </a>
+        )
+      }
+    </div>
 
     <ul class="my-8">
       {tags.map(tag => <Tag tag={slugifyStr(tag)} />)}
