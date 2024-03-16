@@ -1,18 +1,20 @@
-import { defineTable, column, NOW } from 'astro:db';
+import { defineTable, defineDb, column, NOW } from 'astro:db';
 
-const Post = defineTable({
+const Posts= defineTable({
   columns: {
     id: column.number({ primaryKey: true }),
     title: column.text(),
-    author: column.text(),
+    author: column.text({ optional: true }),
     pubDatetime: column.date({default: NOW}),
     slug: column.text(),
-    featured: column.boolean(),
+    featured: column.boolean({default: false}),
     draft: column.boolean({default: false}),
-    tags: column.json(), 
+    tags: column.json({ optional: true }), 
     description: column.text({ optional: true }),
     content: column.text(),
   }
 });
 
-export { Post };
+export default defineDb({
+  tables: { Posts },
+})
